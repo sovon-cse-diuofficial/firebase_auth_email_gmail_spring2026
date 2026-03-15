@@ -20,8 +20,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Firebase Auth",
-      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      title: "Drive - Firebase Auth",
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF1A73E8),
+        fontFamily: 'Segoe UI',
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+        ),
+      ),
       home: const LoginPage(),
     );
   }
