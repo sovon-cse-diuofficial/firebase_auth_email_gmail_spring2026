@@ -1,6 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  print("MAIN STARTED");
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    final app = await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print("Firebase initialized: ${app.name}");
+  } catch (e) {
+    print("Firebase init error: $e");
+  }
+
   runApp(const MyApp());
 }
 
@@ -11,7 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Demo Auth Firebase',
+      title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
         //
