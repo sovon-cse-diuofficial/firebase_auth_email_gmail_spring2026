@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "788527914731",
+    "project_id": "fb-auth-1755",
+    "storage_bucket": "fb-auth-1755.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788527914731:android:fa0cb6d96dae8111c4e8ae",
+        "android_client_info": {
+          "package_name": "com.example.firebase_auth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "788527914731-ht2lao5d1ct2grh2jd7hv2jtljj1qm94.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEM4tuooNt3uN2TmUBU5rMSiW50kg5oFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "788527914731-ht2lao5d1ct2grh2jd7hv2jtljj1qm94.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "788527914731-srni68r226n49k19pip6odap5ipp1igc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.firebaseAuth"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
