@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/item_model.dart';
 import 'add_item_screen.dart';
+import 'item_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => AddItemScreen(onAddItem: _addItem),
+      ),
+    );
+  }
+
+  void _openItemDetails(ItemModel item) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ItemDetailsScreen(item: item),
       ),
     );
   }
@@ -69,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
+              onTap: () => _openItemDetails(item),
               title: Text(item.title),
               subtitle: Text(
                 '${item.location}\n${item.description}',
