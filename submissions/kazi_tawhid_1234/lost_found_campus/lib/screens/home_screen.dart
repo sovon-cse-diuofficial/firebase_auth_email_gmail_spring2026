@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'add_item_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,14 +12,33 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const Center(child: Text("Lost Items")),
-    const Center(child: Text("Found Items")),
+    const Center(
+      child: Text(
+        "Lost Items",
+        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      ),
+    ),
+    const Center(
+      child: Text(
+        "Found Items",
+        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      ),
+    ),
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _openAddItemScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddItemScreen(),
+      ),
+    );
   }
 
   @override
@@ -29,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       body: _screens[_selectedIndex],
-
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openAddItemScreen,
+        child: const Icon(Icons.add),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
