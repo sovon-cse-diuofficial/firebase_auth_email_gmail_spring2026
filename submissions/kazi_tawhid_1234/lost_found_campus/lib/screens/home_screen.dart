@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final List<ItemModel> _items = [];
+  final TextEditingController _searchController = TextEditingController();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -45,52 +46,103 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<ItemModel> get _filteredItems {
+    List<ItemModel> typeFiltered;
+
     if (_selectedIndex == 0) {
-      return _items.where((item) => item.type == 'Lost').toList();
+      typeFiltered = _items.where((item) => item.type == 'Lost').toList();
     } else {
-      return _items.where((item) => item.type == 'Found').toList();
+      typeFiltered = _items.where((item) => item.type == 'Found').toList();
     }
+
+    final query = _searchController.text.trim().toLowerCase();
+
+    if (query.isEmpty) {
+      return typeFiltered;
+    }
+
+    return typeFiltered
+        .where((item) => item.title.toLowerCase().contains(query))
+        .toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final emptyText = _searchController.text.trim().isEmpty
+        ? (_selectedIndex == 0 ? 'No lost items yet' : 'No found items yet')
+        : 'No matching items found';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lost & Found Campus'),
         centerTitle: true,
       ),
-      body: _filteredItems.isEmpty
-          ? Center(
-        child: Text(
-          _selectedIndex == 0
-              ? 'No lost items yet'
-              : 'No found items yet',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _filteredItems.length,
-        itemBuilder: (context, index) {
-          final item = _filteredItems[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              onTap: () => _openItemDetails(item),
-              title: Text(item.title),
-              subtitle: Text(
-                '${item.location}\n${item.description}',
-              ),
-              isThreeLine: true,
-              trailing: Text(
-                '${item.date.day}/${item.date.month}/${item.date.year}',
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) {
+                setState(() {});
+              },
+              decoration: InputDecoration(
+                hintText: 'Search by title...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.clear),
+                )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: _filteredItems.isEmpty
+                ? Center(
+              child: Text(
+                emptyText,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+                : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _filteredItems.length,
+              itemBuilder: (context, index) {
+                final item = _filteredItems[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    onTap: () => _openItemDetails(item),
+                    title: Text(item.title),
+                    subtitle: Text(
+                      '${item.location}\n${item.description}',
+                    ),
+                    isThreeLine: true,
+                    trailing: Text(
+                      '${item.date.day}/${item.date.month}/${item.date.year}',
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddItemScreen,
