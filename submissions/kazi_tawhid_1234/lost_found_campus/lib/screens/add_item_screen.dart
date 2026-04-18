@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import '../models/item_model.dart';
 
 class AddItemScreen extends StatefulWidget {
-  const AddItemScreen({super.key});
+  final Function(ItemModel) onAddItem;
+
+  const AddItemScreen({
+    super.key,
+    required this.onAddItem,
+  });
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -41,22 +47,21 @@ class _AddItemScreenState extends State<AddItemScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Item submitted: ${_titleController.text} ($_selectedType)',
-          ),
-        ),
+      final newItem = ItemModel(
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        location: _locationController.text.trim(),
+        type: _selectedType,
+        date: _selectedDate!,
       );
 
-      _titleController.clear();
-      _descriptionController.clear();
-      _locationController.clear();
+      widget.onAddItem(newItem);
 
-      setState(() {
-        _selectedType = 'Lost';
-        _selectedDate = null;
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Item submitted successfully')),
+      );
+
+      Navigator.pop(context);
     }
   }
 

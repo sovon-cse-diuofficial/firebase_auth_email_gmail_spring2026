@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/item_model.dart';
 import 'add_item_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,21 +11,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    const Center(
-      child: Text(
-        "Lost Items",
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-    ),
-    const Center(
-      child: Text(
-        "Found Items",
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-    ),
-  ];
+  final List<ItemModel> _items = [];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,13 +19,27 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _addItem(ItemModel item) {
+    setState(() {
+      _items.add(item);
+    });
+  }
+
   void _openAddItemScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddItemScreen(),
+        builder: (context) => AddItemScreen(onAddItem: _addItem),
       ),
     );
+  }
+
+  List<ItemModel> get _filteredItems {
+    if (_selectedIndex == 0) {
+      return _items.where((item) => item.type == 'Lost').toList();
+    } else {
+      return _items.where((item) => item.type == 'Found').toList();
+    }
   }
 
   @override
@@ -48,7 +49,38 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Lost & Found Campus'),
         centerTitle: true,
       ),
-      body: _screens[_selectedIndex],
+      body: _filteredItems.isEmpty
+          ? Center(
+        child: Text(
+          _selectedIndex == 0
+              ? 'No lost items yet'
+              : 'No found items yet',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      )
+          : ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: _filteredItems.length,
+        itemBuilder: (context, index) {
+          final item = _filteredItems[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              title: Text(item.title),
+              subtitle: Text(
+                '${item.location}\n${item.description}',
+              ),
+              isThreeLine: true,
+              trailing: Text(
+                '${item.date.day}/${item.date.month}/${item.date.year}',
+              ),
+            ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddItemScreen,
         child: const Icon(Icons.add),
