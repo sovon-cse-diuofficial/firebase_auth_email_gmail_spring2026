@@ -57,6 +57,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
         category: _selectedCategory,
         imageUrl: _imageUrlController.text.trim(),
         date: _selectedDate!,
+        isResolved: false,
       );
 
       widget.onAddItem(newItem);

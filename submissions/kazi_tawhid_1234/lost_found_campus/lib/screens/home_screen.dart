@@ -27,6 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _markItemResolved(ItemModel item) {
+    setState(() {
+      item.isResolved = true;
+    });
+  }
+
   void _openAddItemScreen() {
     Navigator.push(
       context,
@@ -40,7 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ItemDetailsScreen(item: item),
+        builder: (context) => ItemDetailsScreen(
+          item: item,
+          onMarkResolved: () => _markItemResolved(item),
+        ),
       ),
     );
   }
@@ -131,9 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => _openItemDetails(item),
                     title: Text(item.title),
                     subtitle: Text(
-                      '${item.category} • ${item.location}\n${item.description}',
+                      '${item.category} • ${item.location}\n'
+                          '${item.description}\n'
+                          'Status: ${item.isResolved ? "Recovered" : "Active"}',
                     ),
-                    isThreeLine: true,
                     trailing: Text(
                       '${item.date.day}/${item.date.month}/${item.date.year}',
                     ),

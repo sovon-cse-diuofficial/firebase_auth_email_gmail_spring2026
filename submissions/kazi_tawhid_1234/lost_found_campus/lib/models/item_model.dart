@@ -6,6 +6,7 @@ class ItemModel {
   final String category;
   final String imageUrl;
   final DateTime date;
+  bool isResolved;
 
   ItemModel({
     required this.title,
@@ -15,5 +16,6 @@ class ItemModel {
     required this.category,
     required this.imageUrl,
     required this.date,
+    this.isResolved = false,
   });
 }

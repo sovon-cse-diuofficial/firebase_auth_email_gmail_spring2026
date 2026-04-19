@@ -3,10 +3,12 @@ import '../models/item_model.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
   final ItemModel item;
+  final VoidCallback onMarkResolved;
 
   const ItemDetailsScreen({
     super.key,
     required this.item,
+    required this.onMarkResolved,
   });
 
   @override
@@ -84,13 +86,31 @@ class ItemDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Row(
+                  children: [
+                    const Text(
+                      'Status: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      item.isResolved ? 'Recovered' : 'Active',
+                      style: TextStyle(
+                        color: item.isResolved ? Colors.green : Colors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Location: ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Expanded(child: Text(item.location)),
+                    Expanded(
+                      child: Text(item.location),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -118,6 +138,26 @@ class ItemDetailsScreen extends StatelessWidget {
                   item.description,
                   style: const TextStyle(fontSize: 16),
                 ),
+                const SizedBox(height: 24),
+                if (!item.isResolved)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        onMarkResolved();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Mark as Recovered'),
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: null,
+                      child: const Text('Already Recovered'),
+                    ),
+                  ),
               ],
             ),
           ),
