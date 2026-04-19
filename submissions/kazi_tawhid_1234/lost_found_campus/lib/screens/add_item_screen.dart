@@ -19,8 +19,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController();
 
   String _selectedType = 'Lost';
+  String _selectedCategory = 'Electronics';
   DateTime? _selectedDate;
 
   Future<void> _pickDate() async {
@@ -52,6 +54,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
         description: _descriptionController.text.trim(),
         location: _locationController.text.trim(),
         type: _selectedType,
+        category: _selectedCategory,
+        imageUrl: _imageUrlController.text.trim(),
         date: _selectedDate!,
       );
 
@@ -70,6 +74,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     _locationController.dispose();
+    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -99,6 +104,27 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 onChanged: (value) {
                   setState(() {
                     _selectedType = value!;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedCategory,
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Electronics', child: Text('Electronics')),
+                  DropdownMenuItem(value: 'ID Card', child: Text('ID Card')),
+                  DropdownMenuItem(value: 'Bag', child: Text('Bag')),
+                  DropdownMenuItem(value: 'Books', child: Text('Books')),
+                  DropdownMenuItem(value: 'Keys', child: Text('Keys')),
+                  DropdownMenuItem(value: 'Others', child: Text('Others')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value!;
                   });
                 },
               ),
@@ -144,6 +170,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _imageUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'Image URL (optional)',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 16),
               ListTile(

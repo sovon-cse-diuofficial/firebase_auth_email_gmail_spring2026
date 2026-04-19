@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => _openItemDetails(item),
                     title: Text(item.title),
                     subtitle: Text(
-                      '${item.location}\n${item.description}',
+                      '${item.category} • ${item.location}\n${item.description}',
                     ),
                     isThreeLine: true,
                     trailing: Text(

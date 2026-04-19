@@ -3,6 +3,8 @@ class ItemModel {
   final String description;
   final String location;
   final String type;
+  final String category;
+  final String imageUrl;
   final DateTime date;
 
   ItemModel({
@@ -10,6 +12,8 @@ class ItemModel {
     required this.description,
     required this.location,
     required this.type,
+    required this.category,
+    required this.imageUrl,
     required this.date,
   });
 }

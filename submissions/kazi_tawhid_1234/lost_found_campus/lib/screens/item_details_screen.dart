@@ -16,7 +16,7 @@ class ItemDetailsScreen extends StatelessWidget {
         title: const Text('Item Details'),
         centerTitle: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Card(
           child: Padding(
@@ -24,6 +24,37 @@ class ItemDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (item.imageUrl.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      item.imageUrl,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          width: double.infinity,
+                          color: Colors.grey.shade300,
+                          alignment: Alignment.center,
+                          child: const Text('Image could not be loaded'),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text('No image provided'),
+                  ),
+                const SizedBox(height: 16),
                 Text(
                   item.title,
                   style: const TextStyle(
@@ -39,6 +70,16 @@ class ItemDetailsScreen extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(item.type),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Text(
+                      'Category: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(item.category),
                   ],
                 ),
                 const SizedBox(height: 12),
