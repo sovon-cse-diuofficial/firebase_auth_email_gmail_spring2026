@@ -14,6 +14,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  bool _showOnlyMyPosts = false;
+
   final TextEditingController _searchController = TextEditingController();
   final FirestoreService _firestoreService = FirestoreService();
 
@@ -50,23 +52,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<ItemModel> _applyFilters(List<ItemModel> items) {
-    List<ItemModel> typeFiltered;
+    final currentUserEmail = FirebaseAuth.instance.currentUser?.email ?? '';
+
+    List<ItemModel> filteredItems;
 
     if (_selectedIndex == 0) {
-      typeFiltered = items.where((item) => item.type == 'Lost').toList();
+      filteredItems = items.where((item) => item.type == 'Lost').toList();
     } else {
-      typeFiltered = items.where((item) => item.type == 'Found').toList();
+      filteredItems = items.where((item) => item.type == 'Found').toList();
+    }
+
+    if (_showOnlyMyPosts) {
+      filteredItems = filteredItems
+          .where((item) => item.userEmail == currentUserEmail)
+          .toList();
     }
 
     final query = _searchController.text.trim().toLowerCase();
 
-    if (query.isEmpty) {
-      return typeFiltered;
+    if (query.isNotEmpty) {
+      filteredItems = filteredItems
+          .where((item) => item.title.toLowerCase().contains(query))
+          .toList();
     }
 
-    return typeFiltered
-        .where((item) => item.title.toLowerCase().contains(query))
-        .toList();
+    return filteredItems;
   }
 
   @override
@@ -77,6 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserEmail = FirebaseAuth.instance.currentUser?.email ?? 'User';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lost & Found Campus'),
@@ -93,28 +105,89 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (_) {
-                setState(() {});
-              },
-              decoration: InputDecoration(
-                hintText: 'Search by title...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                  onPressed: () {
-                    _searchController.clear();
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.blue.shade100,
+                        child: const Icon(Icons.person, color: Colors.blue),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Logged in as: $currentUserEmail',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _searchController,
+                  onChanged: (_) {
                     setState(() {});
                   },
-                  icon: const Icon(Icons.clear),
-                )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  decoration: InputDecoration(
+                    hintText: 'Search by title...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.clear),
+                    )
+                        : null,
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text('All Items'),
+                        selected: !_showOnlyMyPosts,
+                        onSelected: (_) {
+                          setState(() {
+                            _showOnlyMyPosts = false;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text('My Posts'),
+                        selected: _showOnlyMyPosts,
+                        onSelected: (_) {
+                          setState(() {
+                            _showOnlyMyPosts = true;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -130,20 +203,51 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 final items = _applyFilters(snapshot.data ?? []);
-                final emptyText = _searchController.text.trim().isEmpty
-                    ? (_selectedIndex == 0
-                    ? 'No lost items yet'
-                    : 'No found items yet')
-                    : 'No matching items found';
+
+                String emptyText;
+                if (_showOnlyMyPosts) {
+                  emptyText = _selectedIndex == 0
+                      ? 'You have not posted any lost items'
+                      : 'You have not posted any found items';
+                } else {
+                  emptyText = _selectedIndex == 0
+                      ? 'No lost items yet'
+                      : 'No found items yet';
+                }
+
+                if (_searchController.text.trim().isNotEmpty) {
+                  emptyText = 'No matching items found';
+                }
 
                 if (items.isEmpty) {
                   return Center(
-                    child: Text(
-                      emptyText,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _showOnlyMyPosts
+                              ? Icons.person_search
+                              : (_selectedIndex == 0
+                              ? Icons.search_off
+                              : Icons.inventory_2_outlined),
+                          size: 70,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          emptyText,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap the + button to post a new item.',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -154,17 +258,91 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      margin: const EdgeInsets.only(bottom: 14),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
                         onTap: () => _openItemDetails(item),
-                        title: Text(item.title),
-                        subtitle: Text(
-                          '${item.category} • ${item.location}\n'
-                              'Posted by: ${item.userEmail}\n'
-                              'Status: ${item.isResolved ? "Recovered" : "Active"}',
-                        ),
-                        trailing: Text(
-                          '${item.date.day}/${item.date.month}/${item.date.year}',
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item.title,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Chip(
+                                    label: Text(
+                                      item.type,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor: item.type == 'Lost'
+                                        ? Colors.orange
+                                        : Colors.green,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                item.category,
+                                style: TextStyle(
+                                  color: Colors.blueGrey.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text('Location: ${item.location}'),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Posted by: ${item.userEmail}',
+                                style: TextStyle(color: Colors.grey.shade700),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(
+                                    item.isResolved
+                                        ? Icons.check_circle
+                                        : Icons.access_time,
+                                    size: 18,
+                                    color: item.isResolved
+                                        ? Colors.green
+                                        : Colors.orange,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    item.isResolved ? 'Recovered' : 'Active',
+                                    style: TextStyle(
+                                      color: item.isResolved
+                                          ? Colors.green
+                                          : Colors.orange,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    '${item.date.day}/${item.date.month}/${item.date.year}',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

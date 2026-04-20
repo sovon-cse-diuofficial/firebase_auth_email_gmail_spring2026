@@ -13,6 +13,9 @@ class ItemDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final typeColor = item.type == 'Lost' ? Colors.orange : Colors.green;
+    final statusColor = item.isResolved ? Colors.green : Colors.orange;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Item Details'),
@@ -21,24 +24,31 @@ class ItemDetailsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (item.imageUrl.isNotEmpty)
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     child: Image.network(
                       item.imageUrl,
-                      height: 200,
+                      height: 220,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          height: 200,
+                          height: 220,
                           width: double.infinity,
-                          color: Colors.grey.shade300,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           alignment: Alignment.center,
                           child: const Text('Image could not be loaded'),
                         );
@@ -47,100 +57,60 @@ class ItemDetailsScreen extends StatelessWidget {
                   )
                 else
                   Container(
-                    height: 200,
+                    height: 220,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     alignment: Alignment.center,
                     child: const Text('No image provided'),
                   ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 Text(
                   item.title,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),
-                Row(
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
                   children: [
-                    const Text(
-                      'Type: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(item.type),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Text(
-                      'Category: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(item.category),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Posted By: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Expanded(
-                      child: Text(item.userEmail),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Text(
-                      'Status: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      item.isResolved ? 'Recovered' : 'Active',
-                      style: TextStyle(
-                        color: item.isResolved ? Colors.green : Colors.orange,
-                        fontWeight: FontWeight.bold,
+                    Chip(
+                      label: Text(
+                        item.type,
+                        style: const TextStyle(color: Colors.white),
                       ),
+                      backgroundColor: typeColor,
+                    ),
+                    Chip(
+                      label: Text(
+                        item.isResolved ? 'Recovered' : 'Active',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: statusColor,
+                    ),
+                    Chip(
+                      label: Text(item.category),
                     ),
                   ],
                 ),
+                const SizedBox(height: 18),
+                _infoRow(Icons.email_outlined, 'Posted By', item.userEmail),
                 const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Location: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Expanded(
-                      child: Text(item.location),
-                    ),
-                  ],
-                ),
+                _infoRow(Icons.location_on_outlined, 'Location', item.location),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Text(
-                      'Date: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${item.date.day}/${item.date.month}/${item.date.year}',
-                    ),
-                  ],
+                _infoRow(
+                  Icons.calendar_today_outlined,
+                  'Date',
+                  '${item.date.day}/${item.date.month}/${item.date.year}',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 const Text(
-                  'Description:',
+                  'Description',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -149,26 +119,37 @@ class ItemDetailsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   item.description,
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 if (!item.isResolved)
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    height: 48,
+                    child: ElevatedButton.icon(
                       onPressed: () {
                         onMarkResolved();
                         Navigator.pop(context);
                       },
-                      child: const Text('Mark as Recovered'),
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text('Mark as Recovered'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
                     ),
                   )
                 else
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    height: 48,
+                    child: ElevatedButton.icon(
                       onPressed: null,
-                      child: const Text('Already Recovered'),
+                      icon: const Icon(Icons.done_all),
+                      label: const Text('Already Recovered'),
                     ),
                   ),
               ],
@@ -176,6 +157,23 @@ class ItemDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.blueGrey),
+        const SizedBox(width: 10),
+        Text(
+          '$label: ',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Expanded(
+          child: Text(value),
+        ),
+      ],
     );
   }
 }

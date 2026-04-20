@@ -26,6 +26,7 @@ class LostFoundCampusApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
       ),
       home: const AuthGate(),
     );
