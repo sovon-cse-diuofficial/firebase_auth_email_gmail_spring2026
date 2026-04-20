@@ -4,6 +4,7 @@ import '../models/item_model.dart';
 import '../services/firestore_service.dart';
 import 'add_item_screen.dart';
 import 'item_details_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -130,6 +131,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   _showOnlyMyPosts = true;
                 });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfileScreen(),
+                  ),
+                );
               },
             ),
             ListTile(
