@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ItemModel {
+  String? id;
   final String title;
   final String description;
   final String location;
@@ -9,6 +12,7 @@ class ItemModel {
   bool isResolved;
 
   ItemModel({
+    this.id,
     required this.title,
     required this.description,
     required this.location,
@@ -18,4 +22,31 @@ class ItemModel {
     required this.date,
     this.isResolved = false,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'description': description,
+      'location': location,
+      'type': type,
+      'category': category,
+      'imageUrl': imageUrl,
+      'date': Timestamp.fromDate(date),
+      'isResolved': isResolved,
+    };
+  }
+
+  factory ItemModel.fromMap(String id, Map<String, dynamic> map) {
+    return ItemModel(
+      id: id,
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      location: map['location'] ?? '',
+      type: map['type'] ?? '',
+      category: map['category'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      date: (map['date'] as Timestamp).toDate(),
+      isResolved: map['isResolved'] ?? false,
+    );
+  }
 }

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/item_model.dart';
+import '../services/firestore_service.dart';
 
 class AddItemScreen extends StatefulWidget {
-  final Function(ItemModel) onAddItem;
-
-  const AddItemScreen({
-    super.key,
-    required this.onAddItem,
-  });
+  const AddItemScreen({super.key});
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -15,6 +11,7 @@ class AddItemScreen extends StatefulWidget {
 
 class _AddItemScreenState extends State<AddItemScreen> {
   final _formKey = GlobalKey<FormState>();
+  final FirestoreService _firestoreService = FirestoreService();
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -24,9 +21,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
   String _selectedType = 'Lost';
   String _selectedCategory = 'Electronics';
   DateTime? _selectedDate;
+  bool _isLoading = false;
 
   Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2024),
@@ -40,14 +38,20 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a date')),
-        );
-        return;
-      }
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a date')),
+      );
+      return;
+    }
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
       final newItem = ItemModel(
         title: _titleController.text.trim(),
@@ -60,13 +64,25 @@ class _AddItemScreenState extends State<AddItemScreen> {
         isResolved: false,
       );
 
-      widget.onAddItem(newItem);
+      await _firestoreService.addItem(newItem);
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Item submitted successfully')),
       );
-
       Navigator.pop(context);
+    } catch (e) {
+      debugPrint('Firestore add item error: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit item: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -195,8 +211,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _submitForm,
-                  child: const Text('Submit'),
+                  onPressed: _isLoading ? null : _submitForm,
+                  child: _isLoading
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                      : const Text('Submit'),
                 ),
               ),
             ],
