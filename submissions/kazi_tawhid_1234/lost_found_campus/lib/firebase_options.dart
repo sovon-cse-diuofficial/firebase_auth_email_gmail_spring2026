@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1022939951262',
     projectId: 'lost-and-found-campus-a4af7',
     storageBucket: 'lost-and-found-campus-a4af7.firebasestorage.app',
+    iosClientId: '1022939951262-jf93l8d45kbhurigf2og07ts8ebefn1f.apps.googleusercontent.com',
     iosBundleId: 'com.example.lostFoundCampus',
   );
 
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1022939951262',
     projectId: 'lost-and-found-campus-a4af7',
     storageBucket: 'lost-and-found-campus-a4af7.firebasestorage.app',
+    iosClientId: '1022939951262-jf93l8d45kbhurigf2og07ts8ebefn1f.apps.googleusercontent.com',
     iosBundleId: 'com.example.lostFoundCampus',
   );
 
@@ -85,4 +87,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'lost-and-found-campus-a4af7.firebasestorage.app',
     measurementId: 'G-20ZLEQLZ8G',
   );
+
 }
