@@ -86,6 +86,19 @@ class ItemDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Posted By: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Expanded(
+                      child: Text(item.userEmail),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
                   children: [
                     const Text(
                       'Status: ',

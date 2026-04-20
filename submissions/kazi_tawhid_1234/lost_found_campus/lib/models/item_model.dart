@@ -8,6 +8,7 @@ class ItemModel {
   final String type;
   final String category;
   final String imageUrl;
+  final String userEmail;
   final DateTime date;
   bool isResolved;
 
@@ -19,6 +20,7 @@ class ItemModel {
     required this.type,
     required this.category,
     required this.imageUrl,
+    required this.userEmail,
     required this.date,
     this.isResolved = false,
   });
@@ -31,6 +33,7 @@ class ItemModel {
       'type': type,
       'category': category,
       'imageUrl': imageUrl,
+      'userEmail': userEmail,
       'date': Timestamp.fromDate(date),
       'isResolved': isResolved,
     };
@@ -45,6 +48,7 @@ class ItemModel {
       type: map['type'] ?? '',
       category: map['category'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
+      userEmail: map['userEmail'] ?? '',
       date: (map['date'] as Timestamp).toDate(),
       isResolved: map['isResolved'] ?? false,
     );

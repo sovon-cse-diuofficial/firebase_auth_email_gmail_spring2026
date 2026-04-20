@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: Text(item.title),
                         subtitle: Text(
                           '${item.category} • ${item.location}\n'
-                              '${item.description}\n'
+                              'Posted by: ${item.userEmail}\n'
                               'Status: ${item.isResolved ? "Recovered" : "Active"}',
                         ),
                         trailing: Text(

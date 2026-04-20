@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/item_model.dart';
 import '../services/firestore_service.dart';
@@ -53,6 +54,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
         _isLoading = true;
       });
 
+      final currentUser = FirebaseAuth.instance.currentUser;
+
       final newItem = ItemModel(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
@@ -60,6 +63,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
         type: _selectedType,
         category: _selectedCategory,
         imageUrl: _imageUrlController.text.trim(),
+        userEmail: currentUser?.email ?? 'Unknown User',
         date: _selectedDate!,
         isResolved: false,
       );
