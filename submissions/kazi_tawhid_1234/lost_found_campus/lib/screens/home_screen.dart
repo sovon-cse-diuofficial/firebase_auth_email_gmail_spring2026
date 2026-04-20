@@ -93,14 +93,82 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Lost & Found Campus'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              currentAccountPicture: const CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.person,
+                  size: 40,
+                  color: Colors.blue,
+                ),
+              ),
+              accountName: const Text('Campus User'),
+              accountEmail: Text(currentUserEmail),
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _showOnlyMyPosts = false;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text('My Posts'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _showOnlyMyPosts = true;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About App'),
+              onTap: () {
+                Navigator.pop(context);
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'Lost & Found Campus',
+                  applicationVersion: '1.0.0',
+                  applicationIcon: const Icon(
+                    Icons.inventory_2_outlined,
+                    color: Colors.blue,
+                  ),
+                  children: const [
+                    Text(
+                      'A Flutter app for reporting and finding lost or found items on campus.',
+                    ),
+                  ],
+                );
+              },
+            ),
+            const Spacer(),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await FirebaseAuth.instance.signOut();
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
       body: Column(
         children: [
