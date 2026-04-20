@@ -4,7 +4,12 @@ import '../models/item_model.dart';
 import '../services/firestore_service.dart';
 
 class AddItemScreen extends StatefulWidget {
-  const AddItemScreen({super.key});
+  final ItemModel? itemToEdit;
+
+  const AddItemScreen({
+    super.key,
+    this.itemToEdit,
+  });
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -14,20 +19,38 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final _formKey = GlobalKey<FormState>();
   final FirestoreService _firestoreService = FirestoreService();
 
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _imageUrlController = TextEditingController();
+  late final TextEditingController _titleController;
+  late final TextEditingController _descriptionController;
+  late final TextEditingController _locationController;
+  late final TextEditingController _imageUrlController;
 
-  String _selectedType = 'Lost';
-  String _selectedCategory = 'Electronics';
+  late String _selectedType;
+  late String _selectedCategory;
   DateTime? _selectedDate;
   bool _isLoading = false;
+
+  bool get _isEditMode => widget.itemToEdit != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final item = widget.itemToEdit;
+
+    _titleController = TextEditingController(text: item?.title ?? '');
+    _descriptionController = TextEditingController(text: item?.description ?? '');
+    _locationController = TextEditingController(text: item?.location ?? '');
+    _imageUrlController = TextEditingController(text: item?.imageUrl ?? '');
+
+    _selectedType = item?.type ?? 'Lost';
+    _selectedCategory = item?.category ?? 'Electronics';
+    _selectedDate = item?.date;
+  }
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2024),
       lastDate: DateTime(2030),
     );
@@ -55,31 +78,43 @@ class _AddItemScreenState extends State<AddItemScreen> {
       });
 
       final currentUser = FirebaseAuth.instance.currentUser;
+      final existing = widget.itemToEdit;
 
-      final newItem = ItemModel(
+      final item = ItemModel(
+        id: existing?.id,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         location: _locationController.text.trim(),
         type: _selectedType,
         category: _selectedCategory,
         imageUrl: _imageUrlController.text.trim(),
-        userEmail: currentUser?.email ?? 'Unknown User',
+        userEmail: existing?.userEmail ?? currentUser?.email ?? 'Unknown User',
         date: _selectedDate!,
-        isResolved: false,
+        isResolved: existing?.isResolved ?? false,
       );
 
-      await _firestoreService.addItem(newItem);
+      if (_isEditMode) {
+        await _firestoreService.updateItem(item);
+      } else {
+        await _firestoreService.addItem(item);
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item submitted successfully')),
+        SnackBar(
+          content: Text(
+            _isEditMode
+                ? 'Item updated successfully'
+                : 'Item submitted successfully',
+          ),
+        ),
       );
       Navigator.pop(context);
     } catch (e) {
-      debugPrint('Firestore add item error: $e');
+      debugPrint('Submit item error: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit item: $e')),
+        SnackBar(content: Text('Failed: $e')),
       );
     } finally {
       if (mounted) {
@@ -101,9 +136,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenTitle = _isEditMode ? 'Edit Item' : 'Post Item';
+    final buttonText = _isEditMode ? 'Update' : 'Submit';
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post Item'),
+        title: Text(screenTitle),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -264,7 +302,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                          : const Text('Submit'),
+                          : Text(buttonText),
                     ),
                   ),
                 ],

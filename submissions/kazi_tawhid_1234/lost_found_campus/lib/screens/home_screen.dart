@@ -31,6 +31,24 @@ class _HomeScreenState extends State<HomeScreen> {
     await _firestoreService.markItemResolved(item.id!);
   }
 
+  Future<void> _deleteItem(ItemModel item) async {
+    if (item.id == null) return;
+    await _firestoreService.deleteItem(item.id!);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Post deleted successfully')),
+    );
+  }
+
+  Future<void> _editItem(ItemModel item) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddItemScreen(itemToEdit: item),
+      ),
+    );
+  }
+
   void _openAddItemScreen() {
     Navigator.push(
       context,
@@ -41,12 +59,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openItemDetails(ItemModel item) {
+    final currentUserEmail = FirebaseAuth.instance.currentUser?.email ?? '';
+    final canModify = item.userEmail == currentUserEmail;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ItemDetailsScreen(
           item: item,
           onMarkResolved: () => _markItemResolved(item),
+          onDelete: () => _deleteItem(item),
+          onEdit: () => _editItem(item),
+          canDelete: canModify,
+          canEdit: canModify,
         ),
       ),
     );

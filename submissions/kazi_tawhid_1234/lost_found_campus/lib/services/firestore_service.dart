@@ -8,6 +8,11 @@ class FirestoreService {
     await _firestore.collection('items').add(item.toMap());
   }
 
+  Future<void> updateItem(ItemModel item) async {
+    if (item.id == null) return;
+    await _firestore.collection('items').doc(item.id).update(item.toMap());
+  }
+
   Stream<List<ItemModel>> getItems() {
     return _firestore
         .collection('items')
@@ -24,5 +29,9 @@ class FirestoreService {
     await _firestore.collection('items').doc(id).update({
       'isResolved': true,
     });
+  }
+
+  Future<void> deleteItem(String id) async {
+    await _firestore.collection('items').doc(id).delete();
   }
 }

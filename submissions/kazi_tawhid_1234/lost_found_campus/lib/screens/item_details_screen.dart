@@ -4,11 +4,19 @@ import '../models/item_model.dart';
 class ItemDetailsScreen extends StatelessWidget {
   final ItemModel item;
   final VoidCallback onMarkResolved;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  final bool canDelete;
+  final bool canEdit;
 
   const ItemDetailsScreen({
     super.key,
     required this.item,
     required this.onMarkResolved,
+    required this.onDelete,
+    required this.onEdit,
+    required this.canDelete,
+    required this.canEdit,
   });
 
   @override
@@ -152,6 +160,77 @@ class ItemDetailsScreen extends StatelessWidget {
                       label: const Text('Already Recovered'),
                     ),
                   ),
+                if (canEdit) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        onEdit();
+                      },
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Edit Post'),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                if (canDelete) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Post'),
+                            content: const Text(
+                              'Are you sure you want to delete this post?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true) {
+                          onDelete();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      label: const Text(
+                        'Delete Post',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
