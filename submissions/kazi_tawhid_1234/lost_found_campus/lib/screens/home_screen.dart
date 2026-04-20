@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/item_model.dart';
 import 'add_item_screen.dart';
@@ -90,6 +91,14 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Lost & Found Campus'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Column(
         children: [
