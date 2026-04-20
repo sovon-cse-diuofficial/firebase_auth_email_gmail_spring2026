@@ -20,6 +20,26 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FirestoreService _firestoreService = FirestoreService();
 
+  String _selectedCategoryFilter = 'All';
+  String _selectedSortOption = 'Newest';
+
+  final List<String> _categories = const [
+    'All',
+    'Electronics',
+    'ID Card',
+    'Bag',
+    'Books',
+    'Keys',
+    'Others',
+  ];
+
+  final List<String> _sortOptions = const [
+    'Newest',
+    'Oldest',
+    'Active First',
+    'Recovered First',
+  ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -94,12 +114,39 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
     }
 
+    if (_selectedCategoryFilter != 'All') {
+      filteredItems = filteredItems
+          .where((item) => item.category == _selectedCategoryFilter)
+          .toList();
+    }
+
     final query = _searchController.text.trim().toLowerCase();
 
     if (query.isNotEmpty) {
       filteredItems = filteredItems
           .where((item) => item.title.toLowerCase().contains(query))
           .toList();
+    }
+
+    switch (_selectedSortOption) {
+      case 'Newest':
+        filteredItems.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case 'Oldest':
+        filteredItems.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case 'Active First':
+        filteredItems.sort((a, b) {
+          if (a.isResolved == b.isResolved) return 0;
+          return a.isResolved ? 1 : -1;
+        });
+        break;
+      case 'Recovered First':
+        filteredItems.sort((a, b) {
+          if (a.isResolved == b.isResolved) return 0;
+          return a.isResolved ? -1 : 1;
+        });
+        break;
     }
 
     return filteredItems;
@@ -294,6 +341,66 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedCategoryFilter,
+                        decoration: InputDecoration(
+                          labelText: 'Category',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        items: _categories
+                            .map(
+                              (category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          ),
+                        )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCategoryFilter = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedSortOption,
+                        decoration: InputDecoration(
+                          labelText: 'Sort',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        items: _sortOptions
+                            .map(
+                              (sortOption) => DropdownMenuItem(
+                            value: sortOption,
+                            child: Text(sortOption),
+                          ),
+                        )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSortOption = value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -324,6 +431,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 if (_searchController.text.trim().isNotEmpty) {
                   emptyText = 'No matching items found';
+                }
+
+                if (_selectedCategoryFilter != 'All') {
+                  emptyText = 'No items found in $_selectedCategoryFilter';
                 }
 
                 if (items.isEmpty) {
