@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../models/item_model.dart';
 import '../services/firestore_service.dart';
 import 'add_item_screen.dart';
@@ -161,6 +162,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUserEmail = FirebaseAuth.instance.currentUser?.email ?? 'User';
+    final appState = LostFoundCampusApp.of(context);
+    final isDarkMode = appState?.isDarkMode ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -218,6 +221,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+            SwitchListTile(
+              secondary: const Icon(Icons.dark_mode_outlined),
+              title: const Text('Dark Mode'),
+              value: isDarkMode,
+              onChanged: (value) {
+                appState?.toggleTheme(value);
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('About App'),
@@ -266,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -306,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                         : null,
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: Theme.of(context).cardColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -350,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: InputDecoration(
                           labelText: 'Category',
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: Theme.of(context).cardColor,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
@@ -378,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: InputDecoration(
                           labelText: 'Sort',
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: Theme.of(context).cardColor,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
