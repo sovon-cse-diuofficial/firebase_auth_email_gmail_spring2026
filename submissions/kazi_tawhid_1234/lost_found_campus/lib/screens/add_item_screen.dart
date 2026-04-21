@@ -157,6 +157,18 @@ class _AddItemScreenState extends State<AddItemScreen> {
               key: _formKey,
               child: Column(
                 children: [
+                  TextFormField(
+                    controller: _imageUrlController,
+                    decoration: InputDecoration(
+                      labelText: 'Image URL (optional)',
+                      prefixIcon: const Icon(Icons.image_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   DropdownButtonFormField<String>(
                     value: _selectedType,
                     decoration: InputDecoration(
@@ -175,7 +187,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       });
                     },
                   ),
+
                   const SizedBox(height: 16),
+
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
                     decoration: InputDecoration(
@@ -185,14 +199,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       ),
                     ),
                     items: const [
-                      DropdownMenuItem(
-                        value: 'Electronics',
-                        child: Text('Electronics'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'ID Card',
-                        child: Text('ID Card'),
-                      ),
+                      DropdownMenuItem(value: 'Electronics', child: Text('Electronics')),
+                      DropdownMenuItem(value: 'ID Card', child: Text('ID Card')),
                       DropdownMenuItem(value: 'Bag', child: Text('Bag')),
                       DropdownMenuItem(value: 'Books', child: Text('Books')),
                       DropdownMenuItem(value: 'Keys', child: Text('Keys')),
@@ -204,79 +212,65 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       });
                     },
                   ),
+
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _titleController,
                     decoration: InputDecoration(
                       labelText: 'Item Title',
-                      prefixIcon: const Icon(Icons.label_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter item title';
+                      if (value == null || value.isEmpty) {
+                        return 'Enter title';
                       }
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _descriptionController,
                     maxLines: 3,
                     decoration: InputDecoration(
                       labelText: 'Description',
-                      prefixIcon: const Icon(Icons.description_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter description';
+                      if (value == null || value.isEmpty) {
+                        return 'Enter description';
                       }
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _locationController,
                     decoration: InputDecoration(
                       labelText: 'Location',
-                      prefixIcon: const Icon(Icons.location_on_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter location';
+                      if (value == null || value.isEmpty) {
+                        return 'Enter location';
                       }
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _imageUrlController,
-                    decoration: InputDecoration(
-                      labelText: 'Image URL (optional)',
-                      prefixIcon: const Icon(Icons.image_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+
                   ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    tileColor: Colors.grey.shade100,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 4,
-                    ),
                     title: Text(
                       _selectedDate == null
                           ? 'Select Date'
@@ -285,25 +279,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
                     trailing: const Icon(Icons.calendar_today),
                     onTap: _pickDate,
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                          : Text(buttonText),
-                    ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _submitForm,
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(buttonText),
                   ),
                 ],
               ),

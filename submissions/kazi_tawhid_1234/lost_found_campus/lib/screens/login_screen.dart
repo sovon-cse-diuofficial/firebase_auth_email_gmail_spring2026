@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -15,24 +16,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLogin = true;
   bool _isLoading = false;
-  bool _googleInitialized = false;
+  bool _googleReady = false;
 
   @override
   void initState() {
     super.initState();
-    _initGoogleSignIn();
+    _prepareGoogle();
   }
 
-  Future<void> _initGoogleSignIn() async {
+  Future<void> _prepareGoogle() async {
     try {
-      await GoogleSignIn.instance.initialize();
-      if (mounted) {
+      if (kIsWeb) {
         setState(() {
-          _googleInitialized = true;
+          _googleReady = true;
         });
+        return;
       }
+
+      await GoogleSignIn.instance.initialize();
+      if (!mounted) return;
+      setState(() {
+        _googleReady = true;
+      });
     } catch (e) {
       debugPrint('Google Sign-In init error: $e');
+      if (!mounted) return;
+      setState(() {
+        _googleReady = true;
+      });
     }
   }
 
@@ -76,6 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
         message = 'Password should be at least 6 characters';
       } else if (e.code == 'invalid-email') {
         message = 'Please enter a valid email address';
+      } else if (e.message != null) {
+        message = e.message!;
       }
 
       if (mounted) {
@@ -83,10 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text(message)),
         );
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Something went wrong')),
+          SnackBar(content: Text('Something went wrong: $e')),
         );
       }
     } finally {
@@ -99,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
-    if (!_googleInitialized) {
+    if (!_googleReady) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Google Sign-In is still initializing')),
       );
@@ -111,16 +124,21 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
 
-      final GoogleSignInAccount googleUser =
-      await GoogleSignIn.instance.authenticate();
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        await FirebaseAuth.instance.signInWithPopup(googleProvider);
+      } else {
+        final GoogleSignInAccount googleUser =
+        await GoogleSignIn.instance.authenticate();
 
-      final googleAuth = googleUser.authentication;
+        final googleAuth = googleUser.authentication;
 
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
+        final credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+        );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -130,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google sign-in cancelled or failed: $e')),
+          SnackBar(content: Text('Google sign-in failed: $e')),
         );
       }
     } finally {
@@ -265,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 48,
                         child: OutlinedButton.icon(
-                          onPressed: (_isLoading || !_googleInitialized)
+                          onPressed: (_isLoading || !_googleReady)
                               ? null
                               : _signInWithGoogle,
                           icon: const Icon(Icons.login),
