@@ -1,4 +1,4 @@
-# auth_project
+# zakat_wise
 
 A new Flutter project.
 
